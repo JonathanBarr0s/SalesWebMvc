@@ -28,8 +28,6 @@ namespace SalesWebMvc.Services
 			var maxId = _context.Seller.Max(s => s.Id);
 			_context.Database.ExecuteSqlRaw($"SELECT setval('\"Seller_Id_seq\"', {maxId})");
 
-			obj.Department = _context.Department.First();
-
 			_context.Add(obj);
 			_context.SaveChanges();
 		}
