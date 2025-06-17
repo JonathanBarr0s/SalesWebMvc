@@ -44,14 +44,14 @@ namespace SalesWebMvc.Controllers
 		{
 			if (id == null)
 			{
-				return RedirectToAction(nameof(Error), new { message = "Id not provided"});
+				return RedirectToAction(nameof(Error), new { message = "Id not provided" });
 			}
 
 			var obj = await _sellerService.FindByIdAsync(id.Value);
 			if (obj == null)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id not found" });
-            }
+			}
 
 			return View(obj);
 		}
@@ -60,8 +60,15 @@ namespace SalesWebMvc.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Delete(int id)
 		{
-			await _sellerService.RemoveAsync(id);
-			return RedirectToAction(nameof(Index));
+			try
+			{
+				await _sellerService.RemoveAsync(id);
+				return RedirectToAction(nameof(Index));
+			} catch (IntegrityException e)
+			{
+				return RedirectToAction(nameof(Error), new { message = e.Message });
+			}
+
 		}
 
 		public async Task<IActionResult> Details(int? id)
@@ -69,13 +76,13 @@ namespace SalesWebMvc.Controllers
 			if (id == null)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id not provided" });
-            }
+			}
 
 			var obj = await _sellerService.FindByIdAsync(id.Value);
 			if (obj == null)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id not found" });
-            }
+			}
 
 			return View(obj);
 		}
@@ -85,13 +92,13 @@ namespace SalesWebMvc.Controllers
 			if (id == null)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id not provided" });
-            }
+			}
 
 			var obj = await _sellerService.FindByIdAsync(id.Value);
 			if (obj == null)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id not found" });
-            }
+			}
 
 			List<Department> departments = await _departmentService.FindAllAsync();
 			SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
@@ -106,7 +113,7 @@ namespace SalesWebMvc.Controllers
 			if (id != seller.Id)
 			{
 				return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
-            }
+			}
 			try
 			{
 				await _sellerService.UpdateAsync(seller);
@@ -114,18 +121,18 @@ namespace SalesWebMvc.Controllers
 			} catch (ApplicationException e)
 			{
 				return RedirectToAction(nameof(Error), new { message = e.Message });
-            }
+			}
 		}
 
-        public IActionResult Error(string message)
-        {
-            var viewModel = new ErrorViewModel
-            {
-                Message = message,
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-            };
+		public IActionResult Error(string message)
+		{
+			var viewModel = new ErrorViewModel
+			{
+				Message = message,
+				RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+			};
 
-            return View(viewModel);
-        }
-    }
+			return View(viewModel);
+		}
+	}
 }
